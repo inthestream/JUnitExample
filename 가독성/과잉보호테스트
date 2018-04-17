@@ -1,0 +1,16 @@
+//문제
+@Test
+public void count() {
+  Data data = project.getData();
+
+  assertNotNull(data);
+  assertEquals(4, data.count());
+}
+
+//개선
+@Test
+public void count() {
+  Data data = project.getData();
+
+  assertEquals(4, data.count());
+}

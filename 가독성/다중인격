@@ -1,0 +1,107 @@
+//문제
+//모두가 명령행 인자 구문분석과 관련되어 있지만, 서로 직접적인 관련은 없다.
+public class TestConfiguration {
+  @Test
+  public void testParsingCommandLineArguments() {
+    String[] args = {"-f", "hello.txt", "-v", "--version"};
+    Configuration c = new Configuration();
+    c.processArguments(args);
+    assertEquals("hello.txt", c.getFileName());
+    assertFalse(c.isDebuggingEnabled());
+    assertFalse(c.isWarningsEnabled());
+    assertTrue(c.isVerbose());
+    asserTrue(c.sholdShowVersion());
+
+    c = new Configuration();
+
+    try {
+      c.processArguments(new String[] {"-f"});
+      fail("Should've failed")
+    } catch (InvalidArgumentException expected) {
+
+    }
+  }
+}
+
+
+//1단계 개선(중복 제거)
+public class TestConfiguration {
+  private Configuration c;
+
+  @Before
+  public void instantiateDefaultConfiguration() {
+    c = new Configuration();
+  }
+
+  @Test
+  public void validArgumentsProvided() {
+    String[] args = {"-f", "hello.txt", "-v", "--version"};
+    c.processArguments(args);
+    assertEquals("hello.txt" c.getFileName());
+    assertFalse(c.isDebuggingEnabled());
+    assertFalse(c.isWarningsEnabled());
+    assertTrue(c.isVerbose());
+    assertTrue(c.shouldShowVersion());
+  }
+
+  @Test(expected = InvalidArgumentException.class)
+  public void missingArgument() {
+    c.processArguments(new String[] {"-f"});
+  }
+}
+
+
+
+//2단계 개선(추상 클래스와 독립된 테스트 클래스로 분리)
+public abstract class AbstractConfigTestCase {
+  protected Configuration c;
+
+  @Before
+  public void instantiateDefaultConfiguration() {
+    c = new Configuration();
+    c.processArguments(args());
+  }
+
+  protected String[] args() {
+    return new String[] {};
+  }
+}
+
+public class TestDefaultConfigValues extends AbstractConfigTestCase {
+
+  @Test
+  public void defaultOptionsAreSetCorrectly() {
+    assertFalse(c.isDebuggingEnabled());
+    assertFalse(c.isWarningsEnabled());
+    assertFalse(c.isVerbose());
+    assertFalse(c.shouldShowVersion());
+  }
+}
+
+public class TestExplicitlySetConfigValues extends AbstractConfigTestCase {
+
+  @Override
+  protected String[] args() {
+    return new String[] {"-f", "hello.txt", "-v", "-d", "-w", "--version"};
+  }
+
+  @Test
+  public void explicitOptionsAreSetCorrectly() {
+    assertEquals("hello.txt", c.getFileName());
+    assertTrue(c.isDebuggingEnabled());
+    assertTrue(c.isWarningsEnabled());
+    assertTrue(c.isVerbose());
+    assertTrue(c.shouldShowVersion());
+  }
+}
+
+public class TestConfigurationErrors extends AbstractConfigTestCase {
+
+  @Override
+  protected String[] args() {
+    return new String[] {"-f"};
+  }
+
+  @Test(expected = InvalidArgumentException.class)
+  public void missingArgumentRaisesAnError() {}
+}

@@ -1,0 +1,23 @@
+//문제
+public class BowlingGameTest {
+
+  @Test
+  public void perfectGame() throws Exception {
+    roll(10, 12);
+
+    assertThat(game.score(), is(equalTo(300)));
+  }
+}
+
+
+//개선
+public class BowlingGameTest {
+  @Test
+  public void perfectGame() throws Exception {
+    roll(pins(10), times(12));
+    assertThat(game.score(), is(equalTo(300)));
+  }
+
+  private int pins(int n) { return n; }
+  private int times(int n) { return n; }
+}
