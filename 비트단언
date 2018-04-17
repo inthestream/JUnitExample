@@ -1,0 +1,20 @@
+//문제
+//XOR 연산을 하고 있다.
+//좌우 항의 값이 서로 같을때 실패한다.
+public class PlatformTest {
+
+  @Test
+  public void platformBitLength() {
+    assertTrue(Platform.IS_32_BIT ^ Platform.IS_64_BIT);
+  }
+}
+
+//개선
+public class PlatformTest {
+
+  @Test
+  public void platformBitLength() {
+    assertTrue("Not 32 or 64-bit platform?", Platform.IS_32_BIT || Platform.IS_64_BIT);
+    assertFalse("Can't be 32 and 64-bit at the same time.", Platform.IS_32_BIT && Platform.IS_64_BIT);
+  }
+}

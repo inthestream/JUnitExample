@@ -1,0 +1,86 @@
+//문제
+//testVariableAndMethod.rb 파일을 열어봐야 저장된 값들을 알 수 있다.
+public class TestRuby {
+  private Ruby runtime;
+
+  @Before
+  public void setUp() throws Exception {
+    runtime = Ruby.newInstance();
+  }
+
+  @Test
+  public void testVarAndMet() throws Exception {
+    runtime.getLoadService().init(new ArrayList());
+    eval("load 'test/testVariableAndMethod.rb'");
+    assertEquals("Hello World", eval("puts($a)"));
+    assertEquals("dlroW olleH", eval("puts $b"));
+    assertEquals("Hello World", eval("puts $d.reverse, $C, $e.reverse"));
+    assertEquals("135 20 3", eval("puts $f, \"\", $g, \"\", $h"));
+  }
+}
+
+
+//개선
+//흩어졌던 정보를 메서드 안으로 가져와 보니 다중인격 냄새가 남았다.
+@Test
+public void testVarAndMet() throws Exception {
+  runtime.getLoadService().init(new ArrayList());
+
+  AppendableFile script = withTempFile();
+  script.line("a = String.new('Hello World')");
+  script.line("b = a.reverse");
+  script.line("c = ' '");
+  script.line("d = 'Hello'.reverse");
+  script.line("e = a[6, 5].reverse");
+  script.line("f = 100 + 35");
+  script.line("g = 2 * 10");
+  script.line("h = 13 % 5");
+  script.line("$a = a");
+  script.line("$b = b");
+  script.line("$c = c");
+  script.line("$d = d");
+  script.line("$e = e");
+  script.line("$f = f");
+  script.line("$g = g");
+  script.line("$h = h");
+
+  eval("load '" + script.getAbsolutePath() + "'");
+  assertEquals("Hello World", eval("puts($a)"));
+  assertEquals("dlroW olleH", eval("puts $b"));
+  assertEquals("Hello World", eval("puts $d.reverse, $c, $e.reverse"));
+  assertEquals("135 20 3", eval("puts $f, \"\", $g, \"\", $h"));
+
+}
+
+//개선
+@Before
+public void setUp() throws Exception {
+  runtime.getLoadService().init(new ArrayList());
+  script = withTempFile();
+}
+
+@Test
+public void variableAssignment() throws Exception {
+  script.line("a = String.new('Hello')");
+  script.line("b = 'World'");
+  script.line("$c = 1 + 2");
+  afterEvaluating(script);
+  assertEquals("Hello", eval("puts(a)"));
+  assertEquals("World", eval("puts b"));
+  assertEquals("3", eval("puts $c"));
+}
+
+@Test
+public void methodInvocation() throws Exception {
+  script.line("a = 'Hello'.reverse");
+  script.line("b = 'Hello'.length()");
+  script.line("c = ' abc '.trim(' ', '_')");
+  afterEvaluating(script);
+  assertEquals("olleH", eval("puts a"));
+  assertEquals("3", eval("puts b"));
+  assertEquals("_abc_", eval("puts C"));
+}
+
+private void afterEvaluating(AppendableFile sourceFile) throws Exception {
+  eval("load '" + sourceFile.getAbsolutePath() + "'");
+}
