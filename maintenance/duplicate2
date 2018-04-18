@@ -1,0 +1,58 @@
+@Test
+public void groupShouldContainTwoSupervisors() {
+  List<Employee> all = group.list();
+  List<Employee> employees = new ArrayList<Employee>(all);
+  Iterator<Employee> i = employees.iterator();
+
+  while(i.hasNext()) {
+    Employee employee = i.next();
+
+    if(!employee.isSupervisor()) {
+      i.remove();
+    }
+  }
+
+  assertEquals(2, employee.size());
+}
+
+@Test
+public void groupShouldContainFiveNewcomers() {
+  List<Employee> newcomers = new ArrayList<Employee>();
+
+  for(Employee employee : group.list()) {
+    DateTime oneYearAgo = DateTime.now().minusYear(1);
+
+    if(employee.startingDate().isAfter(oneYearAgo)) {
+      newcomers.add(employee);
+    }
+  }
+
+  assertEquals(5, newcomers.size());
+}
+
+@Test
+public void assertGroupShouldContainFiveNewcomers() {
+  ConditionObject fiveNewComersconditionObject = new FiveNewcomersConditionObject();
+  groupShouldContainEmployeesWithCondition(5, fiveNewComersconditionObject);
+}
+
+class FiveNewcomersConditionObject {
+  public Boolean isTrue(Employee employee) {
+    DateTime oneYearAgo = DateTime.now().minusYear(1);
+
+    return employee.startingDate().isAfter(oneYearAgo);
+  }
+}
+
+
+private void groupShouldContainEmployeesWithCondition(int expectedCount, ConditionObject co) {
+  List<Employee> employees = new ArrayList<Employee>();
+
+  for(Employee employee : group.list()) {
+    if(co.isTrue(employee)) {
+      employees.add(employee);
+    }
+  }
+
+  assertEquals(expectedCount, employees.size());
+}

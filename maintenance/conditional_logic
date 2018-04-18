@@ -1,0 +1,47 @@
+//문제
+//복잡한 검사로직
+public class DictionaryTest {
+  @Test
+  public void returnsAnIteratorForContents() throws Exception {
+    Dictionary dict = new Dictionary();
+    dict.add("A", new Long(3));
+    dict.add("B", "21");
+
+    for(Iterator e = dict.iterator(); e.hasNext();) {
+      Map.Entry entry = (Map.Entry) e.next();
+
+      if("A".equals(entry.getKey())) {
+        assertEquals(3L, entry.getValue());
+      }
+
+      if("B".equals(entry.getKey())) {
+        assertEquals("21", entry.getValue());
+      }
+    }
+  }
+}
+
+//개선
+//for문으로 return이 호출 안될시에는 fail을 둬서 실패하도록 해야함
+@Test
+public void returnsAnIteratorForContents() throws Exception {
+  Dictionary dict = new Dictionary();
+  dict.add("A", new Long(3));
+  dict.add("B", "21");
+
+  assertContains(dict.iterator(), "A", 3L);
+  assertContains(dict.iterator(), "B", "21");
+}
+
+private void assertContains(Iterator i, Object key, Object value) {
+  while(i.hasNext()) {
+    Map.Entry entry = (Map.Entry) i.next();
+
+    if(key.equals(entry.getKey())) {
+      assertEquals(value, entry.getValue());
+      return;
+    }
+  }
+
+  fail("Iterator didn't contain " + key + " => " + value);
+}

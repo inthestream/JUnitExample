@@ -1,0 +1,46 @@
+public class XmlProductCatalogTest {
+  private File tempfile;
+
+  @Before
+  public void prepareTemporaryFile() {
+    String tmpDir = System.getProperty("java.io.tmpdir");
+    tempfile = new File(tmpdir, "catalog.xml");
+  }
+
+  @Test
+  public void initializedWithEmptyCatalog() throws Exception {
+    populateCatalogWithProducts(0);
+    ProductCatalog catalog = new XmlProductCatalog(tempfile);
+    assertEquals(0, catalog.numberOfProducts());
+  }
+
+  @Test
+  public void initializedWithMissingCatalog() throws Exception {
+    ProductCatalog catalog = new XmlProductCatalog(tempfile);
+    assertEquals(0, catalog.numberOfProducts());
+  }
+
+  @Test
+  public void initializedWithPopulatedCatalog() throws Exception {
+    populateCatalogWithProducts(2);
+    ProductCatalog catalog = new XmlProductCatalog(tempfile);
+    assertEquals(2, catalog.numberOfProducts());
+  }
+}
+
+//개선
+@Before
+public void prepareTemporaryFile() {
+  tempfile = File.createTempFile("catalog", ".xml");
+}
+
+@Test
+public void initializedWithMissingCatalog() throws Exception {
+  withMissingFile(tempfile);
+  ProductCatalog catalog = new XmlProductCatalog(tempfile);
+  assertEquals(0, catalog.numberOfProducts());
+}
+
+private void withMissingFile(File file) {
+  file.delete();
+}
