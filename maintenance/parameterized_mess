@@ -1,0 +1,55 @@
+//준비
+//파라미터화된 테스트 패턴 적용을 고민하게 하는 전형적인 모습
+public class RomanNumeralsTest {
+  @Test
+  public void one() {
+    assertEquals("I", format(1));
+  }
+
+  @Test
+  public void two() {
+    assertEquals("II", format(2));
+  }
+
+  @Test
+  public void four() {
+    assertEquals("IV", format(4));
+  }
+}
+
+
+//반복 제거
+//어디서 에러가 발생했는지 알 수 없음
+@RunWith(Parameterized.class)
+public class RomanNumeralsTest {
+  private int number;
+  private String numeral;
+
+  public RomanNumeralsTest(int number, String numeral) {
+    this.number = number;
+    this.numeral = numeral;
+  }
+
+  @Parameters
+  public static Collection<Object[]> data(){
+    return asList(new Object[][] {{1, "I"}, {2, "II"}, {4, "IV"}});
+  }
+
+  @Test
+  public void formatsPositiveIntegers() {
+    assertEquals(numerals, format(number));
+  }
+}
+
+//개선
+@Test
+public void formatsPositiveIntegers() {
+  assertEquals(dataset(), numeral, format(number));
+}
+
+private String dataset() {
+  StringBuilder s = new StringBuilder();
+  s.append("Data set: [").append(this.number);
+  s.append(", \"").append(this.numeral).append("\"].");
+  return s.toString();
+}

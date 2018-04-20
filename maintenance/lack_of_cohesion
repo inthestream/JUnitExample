@@ -1,0 +1,28 @@
+public class SplitsTest {
+  Account account;
+  Split split;
+  BudgetCategory bc1, bc2, bc3, bc4;
+
+
+  @Test
+  public void fromSplits() throws Exception {
+    List<TransactionSplit> fromSplits = new ArrayList<TransactionSplit>();
+    fromSplits.add(createSplit(bc3, 1200));
+    fromSplits.add(createSplit(bc4, 34));
+
+    Transaction t = createTransaction(split, account);
+    t.setFromSplits(fromSplits);
+    assertTrue(transactions(t).size() == 1);
+  }
+
+  @Test
+  public void toSplits() throws Exception {
+    List<TransactionSplit> toSplits = new ArrayList<TransactionSplit>();
+    toSplits.add(createSplit(bc1, 1200));
+    toSplits.add(createSplit(bc2, 34));
+
+    Transaction t = createTransaction(account, split);
+    t.setToSplits(toSplits);
+    assertTrue(transactions(t).size() == 1);
+  }
+}
